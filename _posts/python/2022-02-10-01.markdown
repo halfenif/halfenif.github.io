@@ -1,0 +1,78 @@
+---
+layout: post
+title: "FastAPI 요청 로그 생성하기"
+date: 2022-02-10 17:21:37 +0900
+categories: python
+excerpt: 로그는 대충해도 잘 나오지만.. 그만큼 잘 만들기도 어렵다.
+---
+
+목요일.
+
+FastAPI로 요청되는 것들에 대해서 로깅을 하려고 봤더니 한 방에 안되어 좀 찾아본다.
+
+## 알아야 하는 사항들
+
+-   FastAPI 모든 요청에 끼워서 사용 할 수 있는 middleware 기능이 있으며, 사용방법이 아주 다양하다.
+-   middleware에서 request, response를 사용 할 수 있는데, starlette.requests 등이 필요하다.
+-   Python Logging을 사용하기 위해서 형식을 지정하는 formatter가 필요한데, FastAPI것도 있고 따로 만들어도 된다. 나는 별도 항목으로 정리하고자 해서 별도로 만들었다.
+-   Logging형식을 JSON으로 하고 싶어서 찾아보니 [`pythonjsonlogger`][python-json-logger]라고 만들어 둔 것이 있다.
+-   logging 객체를 함수안에서 만들면... 함수를 부를 때 마다 로그가 배수로 출력된다. 1 > 2 > 4 > 8 > ..?
+
+## 설치
+
+```shell
+sudo pip install starlette-context
+sudo pip install python-json-logger
+```
+
+## main.py
+
+```python
+from starlette.requests import Request
+
+# 로그 객체 생성
+logger = logging.getLogger()
+logger.setLevel(로그래밸)
+handler = logging.FileHandler(로그파일명)
+handler.setFormatter(만들어진 포매터를 넣는다. pythonjsonlogger 깃헙 참조)
+logger.addHandler(handler)
+
+# Define Audit Log
+@app.middleware('http')
+async def audit_log(request: Request, call_next):
+    # ----------------------------------
+    # Next를 안부르면....!!!!
+    response = await call_next(request)
+
+    saveLog(logger, request, response)
+
+    return response
+```
+
+유심히 볼 부분은 audit_log 위쪽에 있는 어노테이션이다. 그리고 로거 객체는 함수 밖에서 만들어야 했고, saveLog()에 request와 response를 넘겨줘서 로깅할 내용을 꺼낼 수 있도록 한다.
+
+```python
+def saveLog(logger, request, response):
+    # Logging 할 Json을 만든다. request, response 모두 가져올수있다.
+    logJson = {
+        "status_code":response.status_code,
+        "request_url": request.url.path,
+        "host": request.headers.get('host', ""),
+        "referer": request.headers.get('referer', ""),
+        }
+
+    # 실제 로그를 기록한다
+    if 설정된로그레벨이 == logging.DEBUG:
+        logger.debug(logJson)
+```
+
+## 고려 할 사항들
+
+-   request method를 고려해서 로깅해도 좋다. GET, PUT만 해도 될 거 같기는 하다.
+-   middleware에서 return을 안하면.. 실제 해보지는 않았다.
+
+---
+
+![Read Count]({%- include count_url.html -%}7c771193-9990-4539-8a8a-035b0fdb9405)
+
+[python-json-logger]: https://github.com/madzak/python-json-logger

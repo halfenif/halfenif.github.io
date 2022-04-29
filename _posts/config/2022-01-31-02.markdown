@@ -1,0 +1,53 @@
+---
+layout: post
+title: "Server에 vite로 build한 것 배포하기"
+date: 2022-01-31 09:25:59 +0900
+categories: config
+excerpt: Vite를 쓰겠다는 것은 정적 웹이라는 이야기다. 응?
+---
+
+월요일.
+
+만들고있는 Toy Project(빨리 이름을 지어줘야 겠다.)를 배포하려고 보니..
+
+## 운영서버에 node가 설치될 이유가 있는가?
+
+-   나는 정적인 웹서버로 Nginx를 사용 할 예정이니, Node가 필요한 상황은 아니다
+
+```shell
+# 그러니 NPM을 설치할 이유는 없어 보인다.
+```
+
+<br />
+
+-   빌드결과물을 어떻게 Cloud에 올릴 것인가?
+
+```shell
+# 개발환경이나 혼자 막 쓰는 녀석이라면 Github을 통해서 간편하게 구성 할 수 있겠지만.
+```
+
+<br />
+
+scp를 사용하기로 하고 설정을 한다.
+
+```shell
+# WSL에서
+# Key는 미리 등록되어 있어야 한다. 사용자명은 ubuntu라고하면
+# build된 결과물이 dist에 있고, cloud에서는 ~/temp/front에서 작업 할 것이다.
+tar -cvzf dist.tar.gz dist/
+scp -i ~/.ssh/키파일명 dist.tar.gz ubuntu@클라우드IP:temp/front/dist.tar.gz
+
+# Cloud에서
+# Nginx Root Folder에 대한 권한 작업은 되어 있어야 한다
+# 다 지우고 넣는다. 잘 생각하자.
+rm -rf dist
+tar -xvf dist.tar.gz
+rm -rf /var/www/html/*
+cp -r ./dist/* /var/www/html
+```
+
+Key File을 매번 입력하기 싫으면, .ssh에 **config** File을 만들어두면 간편하게 사용 할 수 있기는 하다. (나는 그렇게 쓰고 있다.)
+
+---
+
+![Read Count]({%- include count_url.html -%}1d1a38b5-b375-40e1-815c-c42af4350783)

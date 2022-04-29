@@ -1,0 +1,32 @@
+---
+layout: post
+title: "ui5-table이 깨지는 상황"
+date: 2022-01-23 16:30:24 +0900
+categories: javascript
+excerpt: SAP UI5를 우연히 찾은건.. 어린 날에 우연히 발견한 장난감 같은 상황인거다.
+---
+
+일요일.
+
+Toy Project로 만들고 있는 녀석은 SAP에서 오픈소스로 제공하고 있는 ui5 web-component를 사용하고 있다.
+
+### 우선 화면을 하나 보면.
+
+![1](/assets/images/2022-01-23-01-01.png)
+
+-   ui5-table-cell.innerHTML에 좀 긴 문자열이 들어가 있지만, 개행되며 정상적으로 Table Layout이 유지되고 있는 것을 볼 수 있다.
+-   ui5-table의 특성중 popin 또한 정상적으로 적용이 되어 size와 M-Day column은 아래쪽으로 내려갔다.
+
+### 두 번째 화면은 아래와 같다.
+
+![2](/assets/images/2022-01-23-01-02.png)
+
+-   동일한 길이의 문자열인데, table이 깨지면서 옆으로 늘어진 것을 볼 수 있다.
+-   차이점은 저 녀석이 **ui5-link**라는 점이다.
+
+이런 사항은 개발자도구에서 차이점을 아무리 찾으려 해 봤지만 식별하지 못한 부분이다.
+다양한 시도를 통해서 차근 차근 알아가는 수 밖에.
+
+---
+
+![Read Count]({%- include count_url.html -%}281ec472-53e1-4f97-b546-8d3c2eda79bd)

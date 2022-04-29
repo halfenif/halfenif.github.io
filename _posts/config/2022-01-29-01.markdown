@@ -1,0 +1,46 @@
+---
+layout: post
+title: "VSCode 단축키 설정"
+date: 2022-01-29 09:24:07 +0900
+categories: config
+excerpt: 단축키 설정을 안하는 사람은 있어도 한 번만 하는 사람은 없다.
+---
+
+토요일.
+
+VSCode를 주 개발도구로 바꾸고 나서, Python과 JavaScript를 동시에 사용하다가 보니, Python에서 Console.log()를 찍고 있고, JavaScript에서 print()를 찍고 있는게 당연한건 아니다.
+
+귀찬으면 뭔가 개선을 해야 해서 좀 찾아보니 [`VSCode Snipet`][vscode-snipet]에 잘 정리가 되어 있다.
+
+```json
+[
+    {
+        "key": "ctrl+shift+a",
+        "command": "editor.action.insertSnippet",
+        "when": "editorTextFocus",
+        "args": {
+            "snippet": "console.log(`${CLIPBOARD}:`,${CLIPBOARD});"
+        }
+    },
+    {
+        "key": "ctrl+shift+z",
+        "command": "editor.action.insertSnippet",
+        "when": "editorTextFocus",
+        "args": {
+            "snippet": "print(f'${CLIPBOARD}:', $CLIPBOARD)"
+        }
+    }
+]
+```
+
+일단 내가 사용하는 스타일을 보니 변수명을 복사 한 다음 그 녀석을 찍어보겠다는 생각이니, 손가락이 가까운 a와 z를 하나씩 각인시켜본다.
+
+## 결론
+
+개발환경은 자신이 불편한 것이 있으면 찾아보고 찾아보고 적용 해 봐야 한다.
+
+[vscode-snipet]: https://code.visualstudio.com/docs/editor/userdefinedsnippets
+
+---
+
+![Read Count]({%- include count_url.html -%}8fd714fe-9068-4ecd-87b1-e824cc5df89b)

@@ -1,0 +1,29 @@
+---
+layout: post
+title: "RESTFul response status code에 대해"
+date: 2022-02-23 14:58:06 +0900
+categories: think
+excerpt: http status code 204 not found를 어떻게 생각 할 것인가?
+---
+
+수요일.
+
+만들고 있는 토이프로젝트가 드디어 데이터에 대한 추가, 변경 그리고 삭제에 들어가게 되어 생각한다.
+
+데이터에 대한 추가가 발생하는 경우 201 Created를 보내준다고 하지만, 변경과 삭제는?
+
+언듯 200인가 싶어 찾아보니, [`204 No Content`][msdn-status-204]에 대한 내용이 있다.
+
+복잡하게 생각 할 수도 있는데, 200은 화면을 갱신해야 하는 경우. 204는 화면을 (전체)갱신하지 않고 표현 할 수 있다면..으로 이해 해 보자.
+
+나는 변경과 삭제시 해당 Table의 Row만 처리 할 예정이라 204를 보내기로 한다.
+
+그런데, 추가시에는 어떻게 할 것인가? 화면 전체를 갱신 할 것인가?
+
+## 정답은 없다.
+
+---
+
+![Read Count]({%- include count_url.html -%}4a20238f-cf56-432b-8596-a72570591ba3)
+
+[msdn-status-204]: https://developer.mozilla.org/ko/docs/Web/HTTP/Status/204

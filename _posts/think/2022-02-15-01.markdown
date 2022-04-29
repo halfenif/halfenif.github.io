@@ -1,0 +1,42 @@
+---
+layout: post
+title: "Mermaid로 다이어그램 그리는 테스트"
+date: 2022-02-15 15:29:14 +0900
+categories: think
+excerpt: Jekyll에서 사용 할 수 있는 다이어그램을 발견했을 때 너무 좋았다.
+---
+
+화요일.
+
+GitHub에서 다이어그램이 필요한데, 당연 디이어그램을 이미지로 넣을 생각을 했더니 뭔가 방법이 있다.
+
+[`Mermaid`][mermain-intro]라는 녀석인데, 코드블럭을 이용해서 파싱하고 그것을 이미지(아마 SVG겠지? 라고 생각했더니 SVG다.)로 만들어 보여주는 모양으로 생각된다.
+
+그런데, Jekyll사용자의 경우 그냥은 안되고 조금 손을 봐야 하는데, [`미리 해 본 사람`][jekyll-mermaid]이 있어서 크게 어렵지는 않다.
+
+<div class="mermaid"> 
+sequenceDiagram
+    WebBrowser->>+Nginx: Request /
+    Nginx-->>-WebBrowser: Response *.js
+    WebBrowser->>+WebBrowser: Vuex.route에서 판단
+    WebBrowser->>+Nginx: Request /login
+    Nginx-->>-WebBrowser: Response login.vue(js)
+    WebBrowser->>+WebBrowser: Vuex.store에서 요청
+    WebBrowser->>+Uvicorn: Request /api/loginId (Proxy Bypass)
+
+    Uvicorn->>+MySql: Select User
+    MySql-->>-Uvicorn: User Data
+    Uvicorn-->>+WebBrowser: Access Token
+
+    WebBrowser->>+WebBrowser: internalStorage에 저장
+
+</div>
+
+## 결론: 좋다!
+
+---
+
+![Read Count]({%- include count_url.html -%}ee16bf07-9d38-4865-a90c-3fd634039a1d)
+
+[mermain-intro]: https://github.blog/2022-02-14-include-diagrams-markdown-files-mermaid/?fbclid=IwAR3JaO3gd4GkgTb2PfJax2YBKs-2a8J-V0GcTyzfO6ixavf_NpWimZ7DwiI
+[jekyll-mermaid]: https://frhyme.github.io/mermaid/Embedding_mermaid_in_github_page/

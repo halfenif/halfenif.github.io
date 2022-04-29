@@ -1,0 +1,32 @@
+---
+layout: post
+title: "VSCode + .editorconfig 그리고 quote"
+date: 2022-02-05 21:58:29 +0900
+categories: config
+excerpt: 개발환경에 완벽한 것은 없다. 그것에 내가 적응 할 뿐.
+---
+
+토요일.
+
+javaScript로 개발을 한다는 것이 (아마도) 엄청난 성장기라 그런지 개발환경에 대한 설정과 설정 그리고 설정을 하면서 배우고 또 배우는 상황인듯 하다.
+
+기존에 만들고 있던 Toy Project에 eslint와 prettier를 적용하면서 잘될거라는 기대도 없었지만 역시나 역시나 멀쩡히 잘 되던 부분이 안되는 현상이 있어 몇 시간 삽질을 하다가 Pure한 Template을 다시 구해서 해보고 결국 설정이라는 생각을 하고 있다.
+
+Vite + Vu3 + eslint + prettier + VSCode 설정의 **대환장파티**를 히루 종일 해 보고 남은 건.
+
+-   Single Quote에 대한 설정은 VSCode에 적용되는 `.editorconfig`에 설정하는 것으로 적용이 되었다.
+
+```bash
+[*.js]
+quote_type = single
+```
+
+-   그리고 .editorconfig VSCode Extesion이 있으니 그것을 설치해야 한다.
+
+## 그리고
+
+안되는 Toy Project와 되는 Pure Template을 어떻게 Merge 할 것인지 고민하고 있다.
+
+---
+
+![Read Count]({%- include count_url.html -%}52d726a0-b0d7-46eb-840e-a8a93b4f0a56)

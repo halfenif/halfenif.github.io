@@ -1,0 +1,53 @@
+---
+layout: post
+title: "Pretendard Web Font 설정하기"
+date: 2022-01-18 13:23:48 +0900
+categories: config
+excerpt: Pretendard라는 이쁜 폰트를 발견했다. 그런데 과연 이쁜걸까?
+---
+
+화요일.
+
+점심을 먹고 운동을 하고 와서 개발관련 글을 읽고 있는데 폰트가 이쁘다고 생각하고 확인을 해 보니 [`Pretendard`][pretendard]라는 녀석이어서 당연히 외산일것이라 생각하고 구글에서 검색을 하는데 한국인이 만든것인가 보다.
+
+오전에 적용한 ['D2Coding Web Font'][d2coding-web-font]는 이로서 2시간도 안되어 버려지게 되어 버렸다.
+
+### Font/CSS설치
+
+-   [`Pretendard Font`][pretendard-web-static-woff2]를 받아서 적당한 Font 폴더에 넣는다.  
+    나는 woff2만 지원 할 것이지만 css를 살펴보니 size에 따라 적당한 폰트가 다 따로 있는듯 해서 static woff2 전부를 받았다.
+-   [`Pretendard css`][pretendard-web-static-css]를 받아서 적당한 css 폴더에 넣고 경로를 변경해준다.
+
+### 적용하기
+
+이건 자신이 처한 jekyll 테마 환경마다 다를 것이나, [`minima`][minima-github] 2022-01-18기준으로..
+
+-   \_includes/custom-head.html를 다음과 같이 수정했다.
+
+```
+<link href="/assets/css/pretendard-subset.css" rel="stylesheet" />
+```
+
+-   \_sass/minima/custom-styles.scss를 다음과 같이 수정했다.
+
+```
+body {
+  font-family: 'Pretendard', monospace;
+}
+
+code {
+  font-family: 'Pretendard', monospace;
+}
+```
+
+### 다른 문제가 있는가? 웹브라우저 개발자 도구에서 원인을 열심히 찾아보고 무엇인 문제인지 생각 해 보자.
+
+[pretendard]: https://cactus.tistory.com/306
+[d2coding-web-font]: https://halfenif.github.io/config/2022/01/18/01.html
+[pretendard-web-static-woff2]: https://github.com/orioncactus/pretendard/tree/main/dist/web/static/woff2
+[pretendard-web-static-css]: https://github.com/orioncactus/pretendard/blob/main/dist/web/static/pretendard-subset.css
+[minima-github]: https://github.com/jekyll/minima
+
+---
+
+![Read Count]({%- include count_url.html -%}6e0e7148-ac2b-4b28-a60d-789657561061)

@@ -1,0 +1,70 @@
+---
+layout: post
+title: "Oracle Cloud SSH Key & IP Table"
+date: 2022-01-31 09:00:36 +0900
+categories: config
+excerpt: 오라클 무료 인스턴스는 매우 고마운 존재다.
+---
+
+월요일. 음력으로는 올해의 마지막 날.
+
+무료로 제공해줘서 잘쓰고 있는 오라클 클라우드 인스턴스에 지금 만들고 있는 Toy Project를 올리려고 작업을 한다.
+
+-   인스턴스를 만들 때 Private Key File을 받아놓자.
+
+```
+Public Key를 받아놓을 필요가 있을까?
+아직까지는 그런 경우를 알지 못한다.
+```
+
+<br />
+
+-   Windows는 좀 그러니 WSL ssh folder에 밀어넣고 600으로 퍼미션을 변경 해 둔다. 안그러면 퍼미션관련 오류메시지를 볼 것이다.
+
+```
+//WSL에서
+chmod 600 파일명
+```
+
+<br />
+
+-   default user는 Ubuntu의 경우 ubuntu이다. 자기 id 넣고, 순간 당황하지 말자.
+
+```
+이게 습관이라는 것이 참 무서운것이다.
+뭐가 문제인지 인식하는데 시간이 좀 걸렸다.
+```
+
+<br />
+
+-   방화벽 정책을 등록하고. (이미 다른 인스턴스가 있으면 함께 적용가능 하다.)
+
+```
+//Web Instance 관리화면에서
+Networking >> Virtual Cloud Networks >> 해당VNC >> Subnet Details
+여기 Security Lists에 추가한다.
+```
+
+<br />
+
+-   IP Table을 열어준다
+
+```
+//Instance에서
+sudo iptables -I INPUT 5 -i ens3 -p tcp --dport 포트번호 -m state --state NEW,ESTABLISHED -j ACCEPT
+```
+
+<br />
+
+-   재부팅시에도 설정을 유지하도록 하고 재부팅해서 확인한다. (확인은 반드시 실행해서 확인해보는..좀 위험한 발상이기는 하다만.)
+
+```
+//Instance에서
+sudo apt install iptables-persistent
+sudo netfilter-persistent save
+sudo reboot
+```
+
+---
+
+![Read Count]({%- include count_url.html -%}730a9a28-971b-444f-b2e8-8733640159d3)

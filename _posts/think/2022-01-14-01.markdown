@@ -1,0 +1,23 @@
+---
+layout: post
+title: "무엇이던지 시작은 미미했을 수 있다."
+date: 2022-01-14 17:05:30 +0900
+categories: think
+excerpt: 이 글을 작성 할 시점에는 일이 이렇게 커질 줄 몰랐다. 진짜다.
+---
+
+금요일.
+
+아침에 사무실에 출근해서 전날 저녁에 설정하던 WSL에서 Python Debug하는 것을 계속하려다 이상하게 Java 아니 정확하게는 Eclipse상에서 개발되고 있던 회사 인트라넷 개발환경을 VSCode로 설정하는 것을하는 하는 쪽으로 바꾸게 되었는데.
+
+문제는 설정을 어느정도 한 뒤에 이 녀석에 관련된 북마크만 남겨둘 것이 아니라 간단하게나마 내용을 적어놓자 싶은 생각이 들어, 요즘 젊은 친구들은 어디다 무엇을 적고 있는지 [`페이스북`][facebook-question]에 물어본것이 화근이 되어 지금 [`Jekyll`][jekyll-docs]로 설정을 하고 [`GitHub Page`][github-page]에 push를 하는 상황이 벌어지고 있다.
+
+피할수 없으면 즐겨라! (어! 이건 아닌가?)
+
+[facebook-question]: https://www.facebook.com/groups/System.out.Coding/permalink/4853960527996937/
+[jekyll-docs]: https://jekyllrb.com/docs/home
+[github-page]: https://pages.github.com/
+
+---
+
+![Read Count]({%- include count_url.html -%}58e37d8c-4ec2-4200-90a3-288b43bf3ca1)

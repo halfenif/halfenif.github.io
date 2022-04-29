@@ -1,0 +1,66 @@
+---
+layout: post
+title: "Jekyll minima에 Counter 구성하기"
+date: 2022-02-01 13:21:05 +0900
+categories: python
+excerpt: 누구나 카운터 하나 쯤은 만드는거 아니었나?
+---
+화요일.
+
+Jekyll minima thema에는 (당연히) 기본으로 제공하는 카운터가 없어서 하나 만들어 보기로 한다.
+
+카운터의 원리를 여러가지 생각 해 볼 수 있겠으나, 특정 URL로 요청을 하면 카운터 이미지를 되돌로주는 방식이다.
+
+카운팅을 하기 위해서는 카운텅 숫자를 보관 할 필요가 있기에.. 그건 DB를 사용하기로 하고, 남은건 어떻게 이미지를 만들것인가? 인데.
+
+요즘은 SVG라는 걸출한 포맷이 보편화되었기에 이미지가 아니라 String을 반환하면 되기는 한다.
+
+## 알아야 하는 사항
+
+-   Python에는 SVG용 라이브러리가 아주 많은거 같은데, svgwriter가 많이 사용되는 것 같다.
+-   Counter를 다른 사용자 혹은 다른 곳에서 사용되면 곤란하기 때문에, 요청 ORGIN을 반드시 체크해야한다.
+
+```python
+from os.path import join
+import svgwrite
+
+def get_counter_by_uuid(uuid: str):
+    # DB에서 uuid로 기 등록된 카운터를 받아오거나 없으면 신규로 Insert한다.
+    row = sql_get_count_by_uuid(uuid)
+    if row:
+        countNumber = row['READ_COUNT']
+        countStr = f'Read Count : [{countNumber}]'
+    else:
+        countStr = 'Read Count Fail!'
+
+    # 카운터 파일 저장 할 폴더를 하나 만들어 두고
+    filename =  join(COUNTER_DATA_FOLDER, f'{uuid}.svg')
+
+    # 드로잉을 하나 만들면서 크기를 넣어주고
+    dwg = svgwrite.Drawing(filename, (200,16))
+
+    # 문자열을 집어 넣는다
+    dwg.add(dwg.text(countStr, insert=(0, 13), fill='black'))
+
+    # 파일로 저장한다
+    dwg.save()
+
+    # 파일명을 반환한다
+    return filename
+```
+
+자 이제 SVG파일을 만들었으면.. (이걸 열어보면 HTML Element이다.) 반환을 해야 하는데, 사용하고 있는 FastAPI에는 FileResponse라는 아주 좋은 기능이 있다.
+
+```python
+from fastapi.responses import FileResponse
+@get("/count/{uuid}", response_model_by_alias=FileResponse)
+def get_count_by_uuid(uuid: str):
+    filename = get_counter_by_uuid(uuid)
+    return FileResponse(filename, media_type="image/svg+xml")
+```
+
+뭐 달리 신경써줄 사항이 없다. 보안에 대해 좀 신경을 써주고. 물론 대량으로 사용되는 카운터라면 FileWrite에 대한 동시성을 해결해야 하는 사항이 있을것이다.
+
+---
+
+![Read Count]({%- include count_url.html -%}8099dcc8-b497-4a12-a388-874ec71ca789)

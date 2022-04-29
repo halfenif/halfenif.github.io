@@ -1,0 +1,106 @@
+---
+layout: post
+title: "WSL에서 port개방이 안될때"
+date: 2022-01-17 09:14:49 +0900
+categories: config
+excerpt: WSL에서 개발환경을 구축하게 되면 의외로 port 개방에 대해 고민을 하게된다.
+---
+
+월요일.
+
+개발환경을 WSL에 설정하면서 서버를 구동하고 웹브라우저로 확인을하던 디버깅을 하던 필연적으로 WSL과 Host Window사이의 port를 개방해야 하는 문제에 직면하게 된다.
+
+당연히 구글에 찾아보면 PowerShell로 만들어진 스크립트를 손쉽게 입수 할 수 있지만, 그 어디에도 (그렇게 해도) 안될때에 대한 이야기나 추가적인 사항에 대해서 언급한 포스팅은 본적이 없어 잠시 해메다가 이 글을 적어본다.
+<br />
+<br />
+
+먼저 아래에 기술한 Script를 확장자 ps1으로 저장을 하고 스크립트의 내용을 살펴보자.
+
+```
+$remoteport = bash.exe -c "ifconfig eth0 | grep 'inet '"
+```
+
+여기에서 중요한 부분은 bash.exe가 의미하는것이 Window말고 Linux에서 실행할것이라는 의미이다. 그러니 뒤쪽에 있는 파라메터중 `ifconfig`는 linux command이다.
+불행하게도 Ubuntu기준으로 저 녀석은 기본설치가 아니고 net-tools에 포함되어 있다. linux에서 apt로 설치해줘야 한다.
+<br />
+<br />
+
+```
+sudo apt install net-tools
+```
+
+<br />
+분명 port를 개방했는데 여전히 접근이 안되는 경우가 생길때는 진단을 해야 한다.
+- (linux)local에서 해당 서버로 접속이 되는지 확인한다.
+```
+curl http://127.0.0.1:포트번호
+이게 안된다면 구동하고자 하는 서버가 구동이 안되었거나..
+```
+- (windows에서)해당 port가 개방되어 있는지 확인한다.
+``` 
+c:\>Invoke-Expression "netsh interface portproxy show v4tov4";
+여기에 오픈한 포트가 출력이 안된다면 스크립트가 정상적으로 실행이 되었는지 확인을..
+```
+- 구동하고자 하는 서버가 local로만 listen하고 있는지 확인한다.
+```
+구동하는 서버의 구동 파라메터 옵션을 살펴보고 혹시 host관련 옵션이 있다면,
+어디에서든지 요청을 할 수 있도록 구동한다
+예) jekyll serve --host 0.0.0.0
+설명) jekyll를 serve로 구동하는데 어디서든지(0.0.0.0) 이 서버를 호출 할 수 있다.
+```
+- (WSL) Local에서 서버구동하고 (Win10) 웹브라우저에서는 되는것을 핸드폰으로 확인 하고 싶은경우.
+```
+Win10 제어판에서 방화벽 Port를 개방해줘야 하는지 체크한다.
+(그렇다. 언제적 PC방화벽인지 모르겠지만) Win10 기본으로 설정되는 Defender 관련 방화벽이 존재 할 수 있다.
+```
+- 포트를 먼저 오픈한 상태에서 서비스를 올리는 경우.
+
+```
+(추가) 2022-01-23 15:15:57
+이 경우에 대한 확신은 없지만.
+WSL을 설치하고, 서비스를 올리기 전에 해당 port를 개방한 경우에 대한 경험이다.
+
+WSL에 Nginx를 설치해서 80 port로 테스트를 히려는 상황이었다.
+다른 이유 때문에 80 port가 power shell에서 먼저 오픈되었고, WSL에 Nginx는 나중에 설치되었는데 Port가 이미 사용되고 있다는 에러를 내면서 구동이 되지 않았다.
+
+//nginx error log
+2022/01/23 14:05:18 [emerg] 89#89: bind() to 0.0.0.0:80 failed (98: Address already in use)
+
+한참 삽질을 하다가 보니 미리 오픈한 port를 지우고 > 서버를 올리는 방식으로 해결을 했다.
+
+//관리자 권한으로 PowerShell에서 수행
+Invoke-Expression "netsh interface portproxy delete v4tov4 listenport=80";
+```
+
+#### 만약 이 경우에서 벗어나는 사항이 있다면 나에게 이메일로 알려주시기 바란다. 본 포스팅을 갱신하도록 노력하겠다.
+
+Google에서 흔히 구할 수 있는 WSL port개방용 Script
+
+```
+If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
+{
+$arguments = "& '" + $myinvocation.mycommand.definition + "'"
+Start-Process powershell -Verb runAs -ArgumentList $arguments
+Break
+}
+$remoteport = bash.exe -c "ifconfig eth0 | grep 'inet '"
+$found = $remoteport -match '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
+if( $found ){
+$remoteport = $matches[0];
+} else{
+Write-Output "The Script Exited, the ip address of WSL 2 cannot be found";
+exit;
+}
+$ports=@(개방하고자하는 포트번호를 콤마로 구분해서 입력);
+
+Invoke-Expression "netsh interface portproxy reset";
+for( $i = 0; $i -lt $ports.length; $i++ ){
+$port = $ports[$i];
+Invoke-Expression "netsh interface portproxy add v4tov4 listenport=$port connectport=$port connectaddress=$remoteport";
+}
+Invoke-Expression "netsh interface portproxy show v4tov4";
+```
+
+---
+
+![Read Count]({%- include count_url.html -%}1b14fe13-c79d-4f72-9ef6-79fd91c29a89)

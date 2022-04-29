@@ -1,0 +1,38 @@
+---
+layout: post
+title: "사용자와 권한에 대한 생각"
+date: 2022-02-23 13:59:22 +0900
+categories: think
+excerpt: 권한이 생각보다.. 생각 할 것이 많다.
+---
+수요일.
+
+사용자와 권한에 대해 생각한다.
+
+<div class="mermaid"> 
+erDiagram
+          ROLE ||--o{ ROLE-USER : "1:n"
+          ROLE ||--o{ ROLE-MENU : "1:n"
+          ROLE ||--o{ ROLE-API : "1:n"
+          
+          USER ||--o{ ROLE-USER : "1:n"
+          ROLE-MENU }o--||  MENU: "1:n"
+          ROLE-API }o--||  API: "1:n"
+</div>
+
+과연 당신은 사용자와 권한에 대해 어떤 관계를 생각하고 있을까?
+
+<div class="mermaid"> 
+erDiagram
+          USER ||--o{ ROLE-ITEM : "1:n"
+          ROLE ||--o{ ROLE-ITEM : "1:n"
+                    
+          ROLE-ITEM }o--|| MENU : "1:n"
+          ROLE-ITEM }o--|| API : "1:n"
+</div>
+
+추상이라고 불리는 모델링은 정답이 없다.
+
+---
+
+![Read Count]({%- include count_url.html -%}b4436ead-11f2-4b1c-96cb-bab147f5a21c)

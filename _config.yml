@@ -1,0 +1,57 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
+lang: 'ko'
+timezone: 'Asia/Seoul'
+encoding: 'utf-8'
+title: HalfEnif's small talk
+email: halfenif@gmail.com
+description: >- # this means to ignore newlines until "baseurl:"
+  산길 초입에서 노인에게 물었다. "어디까지 가야 합니까?" 노인은 나를 올려다 보며 대답했다. "자네는 어디까지 가고 싶은가?" 나는 할 말을 잃었다.- 서른다섯이 지나서,박병준-
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://halfenif.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+# twitter_username: halfenif
+github_username:  halfenif
+
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+
+
+social:
+  name: halfenif
+  links:
+    - https://github.com/halfenif
+
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
+
+minima:
+  date_format: "%Y-%m-%d %H:%M (%a)"
+
+  # generate social links in footer
+  social_links:
+    github:  halfenif

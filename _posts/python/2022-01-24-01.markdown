@@ -1,0 +1,59 @@
+---
+layout: post
+title: "Python base64 decode 에러나는 상황"
+date: 2022-01-24 21:41:05 +0900
+categories: python
+excerpt: 인코딩은 생각보다 상당히 복잡한 문제다. DateTime에 버금간다고 생각한다.
+---
+
+월요일.
+
+아주가끔은 아니고 한 10번에 한 번은 아래와 같은 오류가 발생했다.
+
+```Python
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xb1 in position 0: invalid start byte
+```
+
+이것에 대해서 찾아보면 utf-8이 3Byte라서.. 어쩌구 하는 게시물도 있기는 했지만 테스트 해보니 정답은 아닌거 같고.
+
+```Python
+def getDecode(msg):
+    msg_byte = base64.b64decode(msg)
+
+    # 원래코드
+    return msg_byte.decode('utf-8')
+
+    # 변경된 코드
+    return msg_byte.decode('utf-16-be')
+```
+
+### 결론(~~아직까지는 문제없음~~)
+
+-   utf-8을 utf-16-be로 바꾼다 (utf-16, utf-16-be, utf-16-le의 차이점도 알아두면 나쁘지 않다.)
+-   이런저런 사정으로 utf-8에서 제외되는 문자가 있는 모양이다.
+-   **utf-8 vs. utf-16의 문제가 아니었다.**
+
+<br />
+```
+python: Invalid base64-encoded string: number of data characters (37) cannot be 1 more than a multiple of 4
+```
+이번에는 이런 오류가 발생하고 있어 구글링을 해 보니 [`stack overflow`][stack-overflow]에 바로 해당 내용이 나온다
+
+-   저 Stack Overflow의 내용은 내가 찾고자 하는 것과는 다른것이었다.
+-   다만, 여기에서 **urlsafe_b64decode**라는 함수가 있어 찾아보니 base64라고 다 같은 base64가 아닌것이다.
+-   urlsafe_b64encode, urlsafe_b64decode는 결국 URL에서 사용되는 특수문자 관련 예외처리를 한 녀석이었다.
+
+```Python
+def getDecode(msg):
+        return base64.urlsafe_b64encode(bytes(msg, 'utf-8').decode('utf-8')
+
+
+def getDecode(msg):
+        return base64.urlsafe_b64decode(bytes(msg, 'utf-8').decode('utf-8')
+```
+
+[stack-overflow]: https://stackoverflow.com/questions/55105045/python-invalid-base64-encoded-string-number-of-data-characters-5-cannot-be-1?noredirect=1&lq=1
+
+---
+
+![Read Count]({%- include count_url.html -%}ac62e2a6-5481-443e-ab1e-35c6f1c75ca1)

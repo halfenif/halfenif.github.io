@@ -1,0 +1,57 @@
+---
+layout: post
+title: "D2Coding을 Web Font로 설정하는 작업"
+date: 2022-01-18 10:41:12 +0900
+categories: config
+excerpt: D2Coding를 Web Font로 쓰겠다는건.. 어찌보면 지극히 개발자적인 이상한 생각인거다.
+---
+
+화요일.
+
+일이 이상하게 돌아가고 있다.(그냥 적용해본 구글 Web Font "Noto Sans KR"가 마음에 안든거다.)
+
+무슨 생각이었을까? 갑자기 D2Coding Font를 이 웹페이지에 적용해야 겠다고 생각하고 구글링을 해 보니 [`먼저 시도 한 사람`][d2coding-web-apply]이 있다.
+
+### 알아야 할 사항
+
+-   woff2, woff, ttf (브라우저 지원을 위한 선택)
+-   full, subset (Size를 줄이기 위한 선택)
+
+[`웹 폰트 사용과 최적화의 최근 동향`][web-font-trend]을 읽어보면 브라우저 지원을 위해서는 woff2와 woff까지 가지고 있어야 할 거 같은데, 그냥 woff2만 지원하기로 한다. (현재 Edge에서 테스트 해보니 woff2를 사용했기 때문에 나머지 브라우저에서 이상하게 보이는건 어쩔수없다.)
+
+### Font/CSS설치
+
+-   wan2land님 [`Git Repo`][d2coding-web-apply]에서...
+-   [`d2coding-subset.woff2`][d2coding-subset-woff2]과 [`d2coding-bold-subset.woff2`][d2coding-bold-subset-woff2]를 받아다가 assets/fonts에다 넣어두었다.
+-   [`d2coding-subset.css`][d2coding-subset-css]를 받아다가 assets/css에 넣어두고, woff2만 사용 할것이니 woff와 ttf는 지우고 경로를 /assets/fonts로 바꿔두었다
+
+### 적용하기
+
+이건 자신이 처한 jekyll 테마 환경마다 다를 것이나, [`minima`][minima-github] 2022-01-18기준으로..
+
+-   \_includes/custom-head.html를 다음과 같이 수정했다.
+
+```
+<link href="/assets/css/d2coding-subset.css" rel="stylesheet" />
+```
+
+-   \_sass/minima/custom-styles.scss를 다음과 같이 수정했다.
+
+```
+body {
+    font-family: 'D2Coding', monospace;
+  }
+```
+
+### 다른 문제가 있는가? 웹브라우저 개발자 도구에서 원인을 열심히 찾아보고 무엇인 문제인지 생각 해 보자.
+
+[d2coding-web-apply]: https://github.com/wan2land/d2coding
+[web-font-trend]: https://d2.naver.com/helloworld/4969726
+[d2coding-subset-woff2]: https://github.com/wan2land/d2coding/blob/master/fonts/d2coding-subset.woff2
+[d2coding-bold-subset-woff2]: https://github.com/wan2land/d2coding/blob/master/fonts/d2coding-bold-subset.woff2
+[d2coding-subset-css]: https://github.com/wan2land/d2coding/blob/master/d2coding-subset.css
+[minima-github]: https://github.com/jekyll/minima
+
+---
+
+![Read Count]({%- include count_url.html -%}7082256c-ae02-43fb-8fe1-e9bbd227750c)

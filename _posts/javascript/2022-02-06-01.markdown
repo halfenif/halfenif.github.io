@@ -1,0 +1,50 @@
+---
+layout: post
+title: "Vite + VUE3 그리고 compilerOptions.isCustomElement"
+date: 2022-02-06 12:12:42 +0900
+categories: javascript
+excerpt: eslint를 설정하는 작업은 짜증난다. 그럼에도 불구하고 말이다.
+---
+
+일요일.
+
+eslint와 prettier설정관련 해서 결국 다른 템플릿으로 바꾸는 작업을 하고있었다.
+
+거의 컴파일 오류를 다 잡고 개발에서 열심히 돌려보니 로직은 잘 돌아가는데 콘솔창에 Vue warning이 열심히 떨어지고 있다.
+
+```shell
+[Vue warn]: Failed to resolve component: ui5-button
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+```
+
+[`이전 Template`][vvt-github]에서는 되고 [`새로운 Template`][vue3-github]에서는 안되는 것인가?
+
+원래 이것은 **vite.config.js**에서 태깅을 해 뒀던 것이었다.
+
+```javascript
+export default defineConfig({
+  plugins: [vue({
+    template:{
+      compilerOptions: {
+        isCustomElement: tag => tag.includes(`ui5`)
+      }
+    }
+  })],
+  ...
+```
+
+## 결론부터 말하자면
+
+> 개발빌드(npm run dev)에서는 발생하고, 운영빌드(npm run build)에서는 발생하지 않는다.
+
+원인은 아마도 개발빌드의 옵션에 관련 된 것으로 짐작은 되지만..
+
+운영빌드에서는 괜찬다는 것을 [`Vue3 Guid`][vue3-guide]를 보고 적용을 해 보면서 알았다
+
+---
+
+![Read Count]({%- include count_url.html -%}447e1b17-b79f-421c-8c65-a5373e6265d9)
+
+[vvt-github]: https://github.com/web2033/vite-vue3-tailwind-starter
+[vue3-github]: https://github.com/lecoueyl/vue3-template
+[vue3-guide]: https://v3.vuejs.org/api/application-config.html#compileroptions-iscustomelement

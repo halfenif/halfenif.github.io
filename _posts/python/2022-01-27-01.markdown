@@ -1,0 +1,52 @@
+---
+layout: post
+title: "Python SQLAlchemy + MySQL 파라메터 형식에 대해서"
+date: 2022-01-27 16:07:40 +0900
+categories: python
+excerpt: 방법이 너무 많다는건.. 그만큼 세월이 오래됬다고 봐도 될꺼다.
+---
+
+목요일.
+
+아주 예전에 Oracle로 구현해뒀던 JWT를 다시 꺼내서 MySql로 바꾸는 작업을 하고 있었다.
+
+```SQL
+    sql = """
+        SELECT   USER_ID
+                ,USER_NAME
+                ,PASSWORD
+        FROM     TB_USER_BAS
+        WHERE    USER_ID = :USER_ID
+    """
+    params = { "USER_ID": userid }
+```
+
+**Argument 2 must be Tuple or List!**
+
+변경된 부분은 아마도 Python에서 MySql을 사용하기 위해 Mysql Connector를 다시 설정해야 하는 부분이 아니었을까 싶지만, 메시지는 매우 당혹스러운 느낌으로 다가온다.
+
+```SQL
+    sql = """
+        SELECT   USER_ID
+                ,USER_NAME
+                ,PASSWORD
+        FROM     TB_USER_BAS
+        WHERE    USER_ID = %(USER_ID)s
+    """
+    params = { "USER_ID": userid }
+```
+
+한참을 찾다가 [`MySql Connector Python`][mysql-connector] Page에서 표현식이 다른 것을 보고 적용을 해 보니 된다.
+
+-   :으로 받는 것이 Oracle과 MySql의 차이인지, Connector의 차이인지, MySql과 MariaDB의 차이인지 확인이 안된다.
+-   당연한 것인지, SQL로 넘어가는 변수명은 대소문자를 가린다. (여기서는 대문자 USER_ID)
+
+## 결론
+
+오래간만에 뭔가를 끄집어 내면, 먼지닦고 광내는데 시간이 걸린다.
+
+[mysql-connector]: https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
+
+---
+
+![Read Count]({%- include count_url.html -%}f7c8acc9-bbd5-4225-a29b-cf4e14afee62)

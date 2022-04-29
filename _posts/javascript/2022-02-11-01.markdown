@@ -1,0 +1,62 @@
+---
+layout: post
+title: "Vue3 + <script setup>과 onMount()에 대한 생각"
+date: 2022-02-11 17:05:35 +0900
+categories: javascript
+excerpt: Vue3에서 제일 어려운 부분운 Vue2라고 생각한다.
+---
+
+금요일.
+
+Vue3를 살펴보면서 (아직 잘 몰라서 드는 생각이겠지만) 문서가 Vue2와 Vue3가 혼재하면서 아직 잘 모르는 사람이 찾기에는 어렵다는 생각을 많이 하게 된다.
+
+사실은 Facebook Login기능을 붙이다가 전에 구현한 Google Login기능이 main.js에 덩그러니 있는것을 보고 모듈쪽으로 이동시키려고 시도하면서 시작된 것이었다.
+
+Vue에서만 사용하는 단어인지는 모르겠지만 SFC(Single File Component)라는 단어가 있는데, 컴포넌트가 어딘가에 포함된 것이 아니고, 그 자체가 하나의 파일로 만들어져 있는 경우를 지칭한다고 생각된다.
+
+어쨌거나, Vue3 혹은 Vue를 설명하는 많은 문서들에서 setup()내에 onMount()를 기술하고 있는 것을 볼 수 있는데, 내 경우에는 어찌해도 그녀석이 호출되지 않는 현상이 있었다.
+
+```javascript
+export default {
+  setup() {
+    onMounted(() => {
+      console.debug(`onMounted:`);
+    },
+  },
+  mounted() {
+      console.debug(`mounted:`);
+  }
+}
+```
+
+문서를 한참 찾아보고, 예제 코드들도 한참 찾아보고. 소스를 고쳐도 보고.
+
+나중에 [`sfc-script-setup`][sfc-script-setup]이라는 부분을 보고 조금은 이해했다.  
+내가 만든 SFC에서 여러가지 필요한 것들이 있어서 소스 제일 상단에 `<script setup>`을 넣어뒀었는데 그것에 영향을 받는다는 생각이 든 것이다.
+
+```html
+<script setup>
+    console.log("hello script setup");
+</script>
+```
+
+이 소스가 어떻게 작동하는지 이해하고 나면.. 그 다음은 잘 적용 할 수 있다고 본다.
+
+### 실제 적용하게 되면
+
+```html
+<script setup>
+    import { onMounted } from "vue";
+
+    onMounted(() => {
+        console.debug(`[UserLogin.vue][] onMounted:`);
+        // 이 시점에는 DOM이 생성되어 있다.
+    });
+</script>
+```
+
+---
+
+![Read Count]({%- include count_url.html -%}2758225d-632f-493b-8aad-3fe65ea83446)
+
+[sfc-script-setup]: https://vuejs.org/api/sfc-script-setup.html

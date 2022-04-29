@@ -1,0 +1,87 @@
+---
+layout: post
+title: "Github Page에 Web Font를 적용하기 위한 설정"
+date: 2022-01-17 14:19:05 +0900
+categories: config
+excerpt: 웹에다가 뭔가를 올리면서 제일 먼저 신경쓰는건 폰트일꺼다.
+---
+
+월요일.
+
+Github Page를 사용하기로 하고 글을쓰는것에서 다 좋은대 PC로 봤을 때 font가 마음에 안든다.(모바일에서 보는 것은 좋았다.)
+
+Google에서 제공하는 Web Font를 설정하려고 봤더니 간단하게 해결될 문제가 아니라는 생각이 들었다.
+사실 이 문제는 공개되어 있는 테마중에 미려한 녀석을 선택해서 사용하면 간단하게 해결된 문제지만, 나는 그럴 생각이 없음으로 내 손으로 해결을 해야한다.
+
+이런 작업을 하기에 2가지 사항을 해결해야 했다.
+
+-   Jekyll의 기본테마인 minima에 Web Font를 적용시키는 방법
+-   Local에서 작업을 했더라도 Github Page에 Push했을 때 의도대로 동작하도록 환경을 일치시키는것
+
+#### **jekyll 버전일치**
+
+일단 Github Page에서 Jekyll을 사용해서 서빙을 하고 있기 때문에 [`Github이 제공하는 환경`][github-page-dependency]과 내가 가진 환경의 차이점을 없애는 부분을 먼저 검토해보니 Jekyll버전부터가 다르다.  
+~~sudo gem install jekyll -v 3.9.0~~  
+~~gem도 install을 지원하기 때문에 적당한 버전의 jekyll을 다시 설치 해 준다.~~
+
+(추가) 2022-01-18 09:52:40  
+3.9를 설치 한 후 jekyll new를 사용해서 새로운 사이트를 만들자 gem파일이 없다고 난리가 난다.  
+과연 3.9를 설치하는 것이 좋은 방법인지 다시 생각 해보자.
+
+### **minima 테마 살펴보기**
+
+Jekyll에서 기본으로 제공하는 테마는 [`minima`][minima-github]라는 녀석인데..(나는 이 녀석을 쓸꺼다)
+이 녀석의 설치정보는 Jekyll과 함께 설치한 bundle을 통해서 알아 낼 수 있다.
+
+```
+bundle info minima
+  * minima (2.5.1)
+        Summary: A beautiful, minimal theme for Jekyll.
+        Homepage: https://github.com/jekyll/minima
+        Path: /var/lib/gems/2.7.0/gems/minima-2.5.1
+```
+
+저 minima가 설치된 경로에 가보면 download된 테마를 구성하는 파일들이 있는데 파일을 적당히 수정해 준다.
+
+> 이 부분을 확인하게 된 이유는 ['minima 설정 가이드 페이지'][minima-config]에서 custom-head.html을 사용 할 수 있는것으로 봤는데, 적용이 안되는 현상이 있었기 때문에 원인을 찾다보니, Local에 설치된 minima는 minima github에 있는내용과 달랐다.
+> 이것이 단순히 업데이트 버전의 문제인지, 아니면 사용자가 알아서 수정해야 하는 사항인지 알수는 없었지만, 그냥 Local을 수정하기로 한다.
+
+Header의 경우에는 `_includes/head.html`에서 아래 문구를 추가해서 custom-head.html을 읽어들이도록 수정했다.
+
+> \{&#37;\- include custom-head.html \-%\}
+
+Scss의 경우에는 GitHub의 `_sass/minima/initialize.scss`와 Local의 `_sass/minima.scss`가 동일한 것이라 판단이 들어서 하단 @import부분을 수정했다.
+{% highlight css %}
+// Import partials.
+@import
+"minima/base",
+"minima/layout",
+"minima/syntax-highlighting",
+"minima/custom-styles" // Hook to override existing styles.
+;
+{% endhighlight %}
+
+자..! 이제 `_includes/custom-head.html`과 `_sass/minima/custom-styles.scss`를 만들어넣고, 적당한 Web Font를 적용하면 성공해야 한다.  
+내 경우에 Local에서는 정상적으로 작동했다. 그리고 GitHub Page에 push를 했더니..
+
+### 다른 문제가 있는가? 웹브라우저 개발자 도구에서 원인을 열심히 찾아보고 무엇인 문제인지 생각 해 보자.
+
+### **결론**
+
+2022-01-17 22:03:52 (추가)  
+위 방법으로 Local의 minima는 잘 변경할수있었지만, GitHub Page는 예상과 달리 변경되지 않았다.
+다시 한 번 GitHub Page의 가이드를 읽어보고 생각한것은
+
+-   minima는 GitHub Page가 기본으로 제공하는(선택 할 수 있는) 테마가 아니다.
+-   나는 config와 post 그리고 custom할 파일만 유지하고 싶었다.(나머지는 GitHub이 제공해주기를 바란거다.)
+-   반영되지 않는 원인은 아마도 GitHub Page에서 제공하는 minima의 버전이 minima GitHub에 올라와 있는 버전과 다르기 때문에 custom을 load하는 부분이 없는것으로 보인다.
+
+결국 [`minima GitHub`][minima-github]에서 \_includes, \_layouts, \_sass, assets을 몽땅 받아 수정하고 커밋하는 것으로 일단락 시킨다.
+
+[github-page-dependency]: https://pages.github.com/versions/
+[minima-github]: https://github.com/jekyll/minima
+[minima-config]: https://github.com/jekyll/minima#customizing-templates
+
+---
+
+![Read Count]({%- include count_url.html -%}cc5a167c-285c-4705-8867-ffe0c6f32c00)

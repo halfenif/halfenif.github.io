@@ -1,0 +1,137 @@
+---
+layout: post
+title: "Nginx를 활용하는 개발, 테스트서버의 설정(Feat. FastAPI, Vite)"
+date: 2022-01-20 17:15:57 +0900
+categories: config
+excerpt: 개발이라는 것이 개발언어의 문법을 익히는 건 아니다. 그 환경을 익히는 것이다.
+---
+
+목요일.
+
+Toy Project를 하나 만들고 있는데, 이 녀석을 FastAPI와 Vite로 구성하고 (관리의 편의라는 이름으로) 하나의 git project로 관리하고 있다.
+
+```
+root
+   - api
+     .gitignore
+     - __pycache__
+     api.py
+   - ui
+     .gitignore
+     - node_modules
+     index.html
+```
+
+개발 할 때는 api 폴더에 들어가서 uvicorn으로 api.py를 구동시켜 http://localhost:8000으로 API서버를 올리고, ui폴더로 들어가서 npm run dev로 http://localhost:3000의 (Static) Web Server를 구동시킨다. 물론 npm run serve도 사용해야 한다.
+
+## 여기에서 생각해야 하는 사항은
+
+-   CORS
+-   API Server URL
+
+CORS는 FastAPI에서 [`가이드하는 부분`][fastapi-cors]으로 처리하면 되고, API Server URL부터는 좀 생각을 해야 한다.  
+나는 프론트와 백앤드를 하나의 오리진으로 서비스 하는 것으로 구성 하려고 하기 때문에, 개발 할 때 API서버의 주소와 운영 할 때 API서버의 주소가 상이한 상황이 발생한다.
+
+## 개발 vs. 운영(테스트)의 구성 차이
+
+-   개발은 vite를 사용해서 자동 reload되는 상태에서 하는 것이 **당연히** 편리하다. 그것때문에 vite를 쓰는것이다.
+-   운영은 bundler를 사용해서 asset을 만들고, static web상태로 서비스 하는 것이 **당연히** 안정적이다. 그냥 웹서버라는 이야기다.
+-   사용자에게 내려가는 js에는 API Server를 호출 할 URL이 있어야 하겠지만, 그것을 노출 할 필요는 **당연히** 없다. URL을보고 이건뭐지? 이런 생각을 하게 할 필요는 없다는 이야기다. route를 api라고 안줬으면 아마 api인줄 모를꺼다.
+
+**API URL관련 js파일**
+
+```javascript
+// .env.local
+VITE_API_SERVER = "http://localhost:8000";
+
+// .env.production
+VITE_API_SERVER = "/api";
+
+// api.js
+export async function fetchData(route) {
+    let url = import.meta.env.VITE_API_SERVER.concat(route); //Make url
+    // Server call..
+}
+```
+
+API Server의 URL관련해서 vite는 .env.local과 .env.production을 사용하는 것으로 생각하고 있나보다.
+
+-   dotenv를 설치하지 않았다면 환경변수는 VITE\_로 시작해야 한다.
+-   dotenv를 설치하면 다른 형식의 변수명도 읽어들이는데.. 통일성에 대해서 생각을 좀 해야 할 거 같다.
+
+**실제 API Server호출하는 예제**
+
+```javascript
+let route = `/filelist`;
+fetchData(route).then((json) => {
+    console.log(json);
+});
+
+// 개발에서 URL은
+// http://localhost:3000/filelist
+
+// 운영에서 URL은
+// http://x.x.x.x/api/filelist
+```
+
+---
+
+이제 Nginx를 설치하고 static page를 제공 할 환경을 만들면된다.
+
+-   Nginx의 default를 그대로 사용 하는 것을 전제로 아래 내용을 적어본다.
+-   Ubuntu 20 LST 기준으로 default html root는 `/var/www/html`이며, 어떻게 설치했느냐에 따라 다르겠지만, 소유자가 root이거나 다른 사용자인 경우 쓰기권한을 부여한다.
+-   Nginx에서 rewrite를 사용해서 **/api**로 들어오는 요청은 **http://localhost:8000**으로 바꿔준다. (API서버는 개발것을 그대로 쓴다는 전제이다. API서버도 테스트용으로 따로 구성하고 싶으면 응용을 하자.)
+
+```nginx
+#/etc/nginx/sites-available/default
+
+        # 이 부분은 기본으로 제공된 부분
+        location / {
+                # First attempt to serve request as file, then
+                # as directory, then fall back to displaying a 404.
+                try_files $uri $uri/ =404;
+        }
+
+        # 이 부분은 /api로 들어오는 요청을 rewrite하는 부분
+        location /api {
+            rewrite ^/api/(.*)$ /$1 break;
+            proxy_pass         http://localhost:8000;
+            proxy_redirect     off;
+            proxy_set_header   Host $host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+```
+
+---
+
+마지막으로 builder를 사용해서 asset을 생성하고, nginx html root로 밀어넣는 Batch Shell을 하나 만들자
+
+```shell
+# build.sh
+
+# 운영환경파일을 환경파일로 복사한다
+cp ./src/config_prod.js ./src/config.js
+
+# 빌드해서 Asset을 만들고
+npm run build
+
+# 이전 Nginx html root를 초기화(정리)하고
+rm -rf /var/www/html/*
+
+# 새로만든 asset을 밀어넣은 다음
+cp -r ./dist/* /var/www/html
+
+# 개발환경파일을 환경파일로 다시 복사해서 개발이 개속 되도록 한다.
+cp ./src/config_dev.js ./src/config.js
+```
+
+## 결론
+
+이 것은 하나의 방법일 뿐이다. 중요한 것을 소스를 코딩하는 시간만큼이나 환경을 구성하는 것에 방법을 찾고 시간을 들이는 것이 당연하다는 것이다.
+
+[fastapi-cors]: https://fastapi.tiangolo.com/tutorial/cors/
+
+---
+
+![Read Count]({%- include count_url.html -%}459065bd-a764-4bfb-a601-11039976403b)
